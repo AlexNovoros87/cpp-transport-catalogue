@@ -1,10 +1,5 @@
 #include "input_reader.h"
-
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <vector>
-
+#include"stat_reader.h"
 
 
 namespace HELP_FUNCTIONS {
@@ -108,9 +103,7 @@ namespace HELP_FUNCTIONS {
     }
 
     
-    
-    
-    void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
+   void InputReader::ApplyCommands([[maybe_unused]] TransportCatalogue& catalogue) const {
 
         std::vector<CommandDescription> LOCAL_ADD_BUS;
 
@@ -128,7 +121,33 @@ namespace HELP_FUNCTIONS {
         }
 
         for (auto i : LOCAL_ADD_BUS) {
-            catalogue.AddBus(HELP_FUNCTIONS::Trim(i.id), HELP_FUNCTIONS::Trim(i.description), HELP_FUNCTIONS::ParseRoute);
+            std::vector<std::string_view> parsed_routes(HELP_FUNCTIONS::ParseRoute(HELP_FUNCTIONS::Trim(i.description)));
+             catalogue.AddBus(HELP_FUNCTIONS::Trim(i.id), std::move(parsed_routes));
+        
         }
     }
 
+    void RunCatalogue( std::istream& stream) {
+        TransportCatalogue catalogue;
+        int base_request_count;
+        stream >> base_request_count >> std::ws;
+
+        {
+            InputReader reader;
+            for (int i = 0; i < base_request_count; ++i) {
+                std::string line;
+                std::getline(stream, line);
+                reader.ParseLine(line);
+            }
+            reader.ApplyCommands(catalogue);
+        }
+
+        int stat_request_count;
+        stream >> stat_request_count >> std::ws;
+        for (int i = 0; i < stat_request_count; ++i) {
+            std::string line;
+            std::getline(stream, line);
+            ParseAndPrintStat(catalogue, line, std::cout);
+        }
+
+    }

@@ -13,6 +13,27 @@ void TransportCatalogue::AddStation(const Stop& stop) {
 }
 
 
+void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_view>&& sv) {
+	std::vector<Stop*> stops;
+	stops.reserve(sv.size());
+	std::unordered_set<std::string_view> unique_counter;
+	double total_lenght = 0.;
+
+	for (auto i : sv) {
+		assert(HasStop(i) == true);
+		stops.emplace_back(hesh_stops_.at(i));
+		unique_counter.insert(i);
+
+	}
+	for (int i = 0; i + 1 < stops.size(); ++i) {
+		double lng = ComputeDistance(stops[i]->coord, stops[i + 1]->coord);
+		total_lenght += lng;
+	}
+	buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght });
+	hesh_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                        //
 //                              ÏÐÎÂÅÐÊÀ ÑÓÙÅÑÒÂÎÂÀÍÈß                                    //
@@ -20,11 +41,11 @@ void TransportCatalogue::AddStation(const Stop& stop) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-bool TransportCatalogue::BusCountAgree(std::string_view name) const {
+bool TransportCatalogue::HasBus(std::string_view name) const {
 	return(hesh_buses_.count(name) > 0);
 }
 
-bool TransportCatalogue::StopCountAgree(std::string_view name) const {
+bool TransportCatalogue::HasStop(std::string_view name) const {
 	return (hesh_stops_.count(name) > 0);
 }
 
@@ -36,14 +57,35 @@ bool TransportCatalogue::StopCountAgree(std::string_view name) const {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 const Bus* TransportCatalogue::GetNeededBus(std::string_view name) const {
-	assert(BusCountAgree(name) == true);
+	assert(HasBus(name) == true);
 	return hesh_buses_.at(name);
 }
 
-TransportCatalogue::Hesh_Stops TransportCatalogue::StopHashTable() const {
+
+const TransportCatalogue::NamesToStops& TransportCatalogue::StopHashTable() const {
 	return hesh_stops_;
 }
 
-TransportCatalogue::Hesh_Buses TransportCatalogue::BusHashTable() const {
+const TransportCatalogue::NamesToBuses& TransportCatalogue::BusHashTable() const {
 	return hesh_buses_;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                        //
+//                                    ÏÐÎ×ÅÅ                                              //
+//                                                                                        //
+////////////////////////////////////////////////////////////////////////////////////////////
+
+std::set<std::string_view> TransportCatalogue::UniqueBusesOnNeededStop(std::string_view stop_name) const {
+	std::set<std::string_view> storage;
+	for (auto i : BusHashTable()) {
+		for (auto j : i.second->bus_root) {
+			if (j->name == stop_name) {
+				storage.insert(i.second->name);
+				break;
+			}
+		}
+	}
+	return storage;
 }

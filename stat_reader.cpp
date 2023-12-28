@@ -9,7 +9,7 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
     //еякх гюопня - юбрнася
     if (HELP_STRUCTURES::REQUEST::IS_BUS(req)) {
 
-        if (!tansport_catalogue.BusCountAgree(name)) {
+        if (!tansport_catalogue.HasBus(name)) {
             output << "Bus " << name << ": not found" << std::endl;
         }
         else {
@@ -17,7 +17,7 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
             output << "Bus " << name << ": " <<
                 tmp->bus_root.size() << " stops on route, " <<
                 tmp->unique_stops << " unique stops, " <<
-                tmp->lenght << " route length" <<
+                tmp->length << " route length" <<
                 std::endl;
         }
          
@@ -26,34 +26,25 @@ void ParseAndPrintStat(const TransportCatalogue& tansport_catalogue, std::string
     //еякх гюопня - нярюмнбйю
     if (HELP_STRUCTURES::REQUEST::IS_STOP_POINT(req)) {
        
-        if (!tansport_catalogue.StopCountAgree(name)) {
+        if (!tansport_catalogue.HasStop(name)) {
             output << "Stop " << name << ": not found" << std::endl;
             return;
         }
-        int count = 0;
-        std::set<std::string_view> sv;
+        
+        std::set<std::string_view> sv = tansport_catalogue.UniqueBusesOnNeededStop(name);
 
-        for (auto i : tansport_catalogue.BusHashTable()) {
-            for (auto j : i.second->bus_root) {
-                if (j->name == name) {
-                    sv.insert(i.second->name);
-                    ++count; break;
-                }
-            }
-        }
-        if (count == 0) {
+        if (sv.empty()) {
             output << "Stop " << name << ": no buses" << std::endl;
             return;
         }
         
-        int limiter = 0;
         output << "Stop " << name << ": buses ";
         for (auto&& i : sv) {
-            output << i;
-            if (limiter == count - 1) break;
-            output << ' ';
+            output << i << ' ';
         }
         output << std::endl;
     }
 
 }
+
+
