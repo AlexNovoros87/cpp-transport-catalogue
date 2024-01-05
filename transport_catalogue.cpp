@@ -18,7 +18,7 @@ void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_v
 	stops.reserve(sv.size());
 	std::unordered_set<std::string_view> unique_counter;
 	double total_lenght = 0.;
-
+	double total_road_length = 0;
 	for (auto i : sv) {
 		assert(HasStop(i) == true);
 		stops.emplace_back(hesh_stops_.at(i));
@@ -27,10 +27,25 @@ void TransportCatalogue::AddBus(std::string_view name, std::vector<std::string_v
 	}
 	for (int i = 0; i + 1 < stops.size(); ++i) {
 		double lng = ComputeDistance(stops[i]->coord, stops[i + 1]->coord);
+		if (database_lengths_.count({ stops[i], stops[i + 1] }) > 0) {
+			total_road_length += GetDistance(stops[i]->name, stops[i + 1]->name);
+			//	database_lengths_.at({ stops[i], stops[i + 1] });
+		}
+		else if (database_lengths_.count({ stops[i+1], stops[i] }) > 0) {
+			total_road_length += GetDistance(stops[i + 1]->name, stops[i]->name);
+				//database_lengths_.at({ stops[i+1], stops[i] });
+		}
 		total_lenght += lng;
 	}
-	buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght });
+	buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght, total_road_length });
 	hesh_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
+}
+
+
+void TransportCatalogue::AddDistance(std::string_view point1, std::string_view point2, double len) {
+	if (HasStop(point1) && HasStop(point2)) {
+		database_lengths_[{hesh_stops_.at(point1), hesh_stops_.at(point2)}] = len;
+	}
 }
 
 
@@ -61,6 +76,11 @@ const Bus* TransportCatalogue::GetNeededBus(std::string_view name) const {
 	return hesh_buses_.at(name);
 }
 
+const Stop* TransportCatalogue::GetNeededStop(std::string_view name) const {
+	assert(HasStop(name) == true);
+	return hesh_stops_.at(name);
+};
+
 
 const TransportCatalogue::NamesToStops& TransportCatalogue::StopHashTable() const {
 	return hesh_stops_;
@@ -88,4 +108,11 @@ std::set<std::string_view> TransportCatalogue::UniqueBusesOnNeededStop(std::stri
 		}
 	}
 	return storage;
+}
+
+double TransportCatalogue::GetDistance(std::string_view point1, std::string_view point2) const {
+	if (database_lengths_.count({ hesh_stops_.at(point1), hesh_stops_.at(point2) }) > 0) {
+		return database_lengths_.at({ hesh_stops_.at(point1), hesh_stops_.at(point2) });
+	}
+	return 0.;
 }
