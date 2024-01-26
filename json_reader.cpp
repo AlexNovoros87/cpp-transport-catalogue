@@ -44,7 +44,6 @@ const TransportCatalogue& WorkWithJson::Catalogue() const {
     return cat_;
 }
 
-
 void WorkWithJson::PrintArray(std::ostream& ost) const {
     int counter = 0;
     ost << "[";
@@ -57,9 +56,9 @@ void WorkWithJson::PrintArray(std::ostream& ost) const {
     ost << "]";
 }
 
-
-
-
+/////////////////////////////////////////////////////////////////////
+///                      ŒÕ—“–” “ ¡ƒ                              ///
+/////////////////////////////////////////////////////////////////////
 
 void WorkWithJson::LoadBase() {
 
@@ -69,7 +68,7 @@ void WorkWithJson::LoadBase() {
     cat_ = ConstructCatalog(requests_to_add_);
     render_settings_ = std::move(std::get<2>(load_print_requests));
     MakeArrayJson();
-
+  
 }
 
 std::tuple<json::Node, json::Node, json::Node> WorkWithJson::SortRequests() {
@@ -80,13 +79,13 @@ std::tuple<json::Node, json::Node, json::Node> WorkWithJson::SortRequests() {
     json::Node array_stat;
     //–‡Á‰ÂÎˇÂÏ Ì‡ "base_requests" Ë "stat_requests"
     json::Node render_settings;
-
+  
     for (auto&& [key, value] : n.AsMap()) {
         if (key == "base_requests") array_base = std::move(value);
         else if (key == "stat_requests")  array_stat = std::move(value);
         else if (key == "render_settings") render_settings = std::move(value);
     }
-
+ 
     return { array_base,array_stat, render_settings };
 }
 
@@ -123,18 +122,18 @@ TransportCatalogue WorkWithJson::ConstructCatalog(json::Node& nod) {
     }
     ///////////////////////////////////////////////////////////////////////// 
 
-    //lj,fdk
+    //‰Ó·‡‚ÎˇÂÏ ‡‚ÚÓ·ÛÒ˚
     for (auto&& i : add_bus_req) {
         std::string_view name = i.AsMap().at("name").AsString();
         bool round = i.AsMap().at("is_roundtrip").AsBool();
         std::vector<std::string_view> routes;
         int to_reserve = static_cast<int>(i.AsMap().at("stops").AsArray().size());
-
+       
         if (to_reserve > 0 && !round) {
             routes.reserve(to_reserve * 2 - 1);
         }
         else routes.reserve(to_reserve);
-
+        
         for (const auto& j : i.AsMap().at("stops").AsArray()) {
             routes.emplace_back(j.AsString());
         }
@@ -144,31 +143,23 @@ TransportCatalogue WorkWithJson::ConstructCatalog(json::Node& nod) {
                 routes.emplace_back(routes[i]);
             }
         }
-
         cat.AddBus(name, routes, round);
     }
     return cat;
 }
 
-std::string WorkWithJson::MakeMapNode() const {
-    Prerend render(Render_Graphics(RenderSettings()), this->cat_);
-    std::ostringstream ostr;
-    render.RenderAll(ostr);
-    return ostr.str();
-}
-
 void WorkWithJson::MakeArrayJson() {
     if (requests_to_get_.IsArray()) {
-
+      
         json::Array answers;
         requests_array_.clear();
 
         for (const auto& i : requests_to_get_.AsArray()) {
-
+          
             std::string_view type_req = i.AsMap().at("type").AsString();
             json::Dict dictionary;
             int id = i.AsMap().at("id").AsInt();
-            if (REQUEST::IS_BUS(type_req) || REQUEST::IS_STOP_POINT(type_req)) {
+            if (REQUEST::IS_BUS(type_req) || REQUEST::IS_STOP_POINT(type_req)) { 
                 std::string_view request_name = i.AsMap().at("name").AsString();
                 if (REQUEST::IS_BUS(type_req)) {
                     if (!cat_.HasBus(request_name)) {
@@ -201,21 +192,27 @@ void WorkWithJson::MakeArrayJson() {
                         dictionary.insert({ "request_id", id });
                     }
                 }
-
-
+               
+               
             }
             else if (REQUEST::IS_MAP(type_req)) {
                 json::Node nod(MakeMapNode());
                 dictionary.insert({ "request_id", id });
-                dictionary.insert({ "map", std::move(nod) });
+                dictionary.insert({ "map", std::move(nod)});
             }
             requests_array_.emplace_back(std::move(dictionary));
-
         }
 
     }
 }
 
+//–ÂÌ‰ÂÓ‚˘ËÍ  ‡Ú˚
+std::string WorkWithJson::MakeMapNode() const {
+    Prerend render(Render_Graphics(RenderSettings()), this->cat_);
+    std::ostringstream ostr;
+    render.RenderAll(ostr);
+    return ostr.str();
+}
 
 /////////////////////////////////////////////////////
 //                                                 //
@@ -232,135 +229,135 @@ void WorkWithJson::MakeArrayJson() {
     ///////////////////////////////////////////////
     ///                  Œ¡ÿ≈≈                  ///
     ///////////////////////////////////////////////
-const svg::Color& Render_Graphics::UnderLayerColor() const {
-    return underlayer_;
-}
-
-const std::vector<svg::Color>& Render_Graphics::ColorPallete() const {
-    return color_palette_;
-}
-
-double Render_Graphics::ScreenWidth() const {
-    return root_.AsMap().at("width").AsDouble();
-}
-
-double Render_Graphics::ScreenHeight() const {
-    return root_.AsMap().at("height").AsDouble();
-}
-
-double Render_Graphics::Padding() const {
-    return root_.AsMap().at("padding").AsDouble();
-}
-
-double Render_Graphics::LineWidht() const {
-    return root_.AsMap().at("line_width").AsDouble();
-}
-
-double Render_Graphics::UnderLayerW() const {
-    return root_.AsMap().at("underlayer_width").AsDouble();
-}
-
-///////////////////////////////////////////////
-///              —À”∆≈¡Õ€≈                  ///
-///////////////////////////////////////////////
-
-Render_Graphics::Render_Graphics(const json::Node& nod) : root_(nod) {
-    underlayer_ = ConvertColotToToSVG(root_.AsMap().at("underlayer_color"));
-    CreatePalette();
-}
-void Render_Graphics::CreatePalette() {
-    for (auto&& i : root_.AsMap().at("color_palette").AsArray()) {
-        color_palette_.emplace_back(ConvertColotToToSVG(i));
+    const svg::Color& Render_Graphics::UnderLayerColor() const {
+        return underlayer_;
     }
-}
-svg::Color Render_Graphics::ConvertColotToToSVG(const json::Node& node) const {
-    if (node.IsString()) return node.AsString();
-
-    if (node.IsArray()) {
-        if (node.AsArray().size() == 3) {
-            return svg::Rgb{
-                node.AsArray()[0].AsInt(),
-                    node.AsArray()[1].AsInt(),
-                    node.AsArray()[2].AsInt()
-            };
-        }
-        if (node.AsArray().size() == 4) {
-            return svg::Rgba{
-                node.AsArray()[0].AsInt(),
-                    node.AsArray()[1].AsInt(),
-                    node.AsArray()[2].AsInt(),
-                    node.AsArray()[3].AsDouble()
-            };
-        }
-
+  
+    const std::vector<svg::Color>& Render_Graphics::ColorPallete() const {
+        return color_palette_;
     }
-    return std::monostate{};
-}
+    
+    double Render_Graphics::ScreenWidth() const {
+        return root_.AsMap().at("width").AsDouble();
+    }
 
+    double Render_Graphics::ScreenHeight() const {
+        return root_.AsMap().at("height").AsDouble();
+    }
 
-///////////////////////////////////////////////
-///              ¿¬“Œ¡”—€                   ///
-///////////////////////////////////////////////
-int Render_Graphics::BusLabelFont() const {
-    return root_.AsMap().at("bus_label_font_size").AsInt();
-}
+    double Render_Graphics::Padding() const {
+        return root_.AsMap().at("padding").AsDouble();
+    }
 
-svg::Point Render_Graphics::BusLabelOffsetPoint() const {
-    return {
-        root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble() ,
-        root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble()
-    };
-}
+    double Render_Graphics::LineWidht() const {
+        return root_.AsMap().at("line_width").AsDouble();
+    }
 
-double Render_Graphics::BusLabX() const {
-    return root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble();
-}
+    double Render_Graphics::UnderLayerW() const {
+        return root_.AsMap().at("underlayer_width").AsDouble();
+    }
+    
+    ///////////////////////////////////////////////
+    ///              —À”∆≈¡Õ€≈                  ///
+    ///////////////////////////////////////////////
+    
+    Render_Graphics::Render_Graphics(const json::Node& nod) : root_(nod) {
+        underlayer_ = ConvertColotToToSVG(root_.AsMap().at("underlayer_color"));
+        CreatePalette();
+    }
+    void Render_Graphics::CreatePalette() {
+        for (auto&& i : root_.AsMap().at("color_palette").AsArray()) {
+            color_palette_.emplace_back(ConvertColotToToSVG(i));
+        }
+    }
+    svg::Color Render_Graphics::ConvertColotToToSVG(const json::Node& node) const {
+        if (node.IsString()) return node.AsString();
 
-double Render_Graphics::BusLabY() const {
-    return root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble();
-}
+        if (node.IsArray()) {
+            if (node.AsArray().size() == 3) {
+                return svg::Rgb{
+                    node.AsArray()[0].AsInt(),
+                        node.AsArray()[1].AsInt(),
+                        node.AsArray()[2].AsInt()
+                };
+            }
+            if (node.AsArray().size() == 4) {
+                return svg::Rgba{
+                    node.AsArray()[0].AsInt(),
+                        node.AsArray()[1].AsInt(),
+                        node.AsArray()[2].AsInt(),
+                        node.AsArray()[3].AsDouble()
+                };
+            }
 
-std::pair<double, double> Render_Graphics::BusLabelOffsetPair() const {
-    return {
-        root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble() ,
-        root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble()
-    };
-}
-///////////////////////////////////////////////
-///              Œ—“¿ÕŒ¬ »                  ///
-///////////////////////////////////////////////
+        }
+        return std::monostate{};
+    }
 
+   
+    ///////////////////////////////////////////////
+    ///              ¿¬“Œ¡”—€                   ///
+    ///////////////////////////////////////////////
+    int Render_Graphics::BusLabelFont() const {
+        return root_.AsMap().at("bus_label_font_size").AsInt();
+    }
+    
+    svg::Point Render_Graphics::BusLabelOffsetPoint() const {
+        return {
+            root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble() ,
+            root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble()
+        };
+    }
 
-int Render_Graphics::StopLabelFont() const {
-    return root_.AsMap().at("stop_label_font_size").AsInt();
-}
+    double Render_Graphics::BusLabX() const {
+        return root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble();
+    }
 
-double Render_Graphics::StopRadius() const {
-    return root_.AsMap().at("stop_radius").AsDouble();
-}
+    double Render_Graphics::BusLabY() const {
+        return root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble();
+    }
+      
+    std::pair<double, double> Render_Graphics::BusLabelOffsetPair() const {
+        return {
+            root_.AsMap().at("bus_label_offset").AsArray()[0].AsDouble() ,
+            root_.AsMap().at("bus_label_offset").AsArray()[1].AsDouble()
+        };
+    }
+    ///////////////////////////////////////////////
+    ///              Œ—“¿ÕŒ¬ »                  ///
+    ///////////////////////////////////////////////
+    
+    
+    int Render_Graphics::StopLabelFont() const {
+        return root_.AsMap().at("stop_label_font_size").AsInt();
+    }
 
-svg::Point Render_Graphics::StopLabelOffsetPoint() const {
-    return {
-        root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble() ,
-        root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble()
-    };
-}
+    double Render_Graphics::StopRadius() const {
+        return root_.AsMap().at("stop_radius").AsDouble();
+    }
 
-double Render_Graphics::StopLabX() const {
-    return root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble();
-}
+    svg::Point Render_Graphics::StopLabelOffsetPoint() const {
+        return {
+            root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble() ,
+            root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble()
+        };
+    }
 
-double Render_Graphics::StopLabY() const {
-    return root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble();
-}
+    double Render_Graphics::StopLabX() const {
+        return root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble();
+    }
 
-std::pair<double, double> Render_Graphics::StopLabelOffsetPair() const {
-    return {
-        root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble() ,
-        root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble()
-    };
-}
+    double Render_Graphics::StopLabY() const {
+        return root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble();
+    }
 
+    std::pair<double, double> Render_Graphics::StopLabelOffsetPair() const {
+        return {
+            root_.AsMap().at("stop_label_offset").AsArray()[0].AsDouble() ,
+            root_.AsMap().at("stop_label_offset").AsArray()[1].AsDouble()
+        };
+    }
 
+   
 
 

@@ -63,7 +63,7 @@ public:
 
     //конструктор
     Prerend(Render&& render, const Base& base);
-
+    
     //render
     void RenderAll(std::ostream& out = std::cout);
 
@@ -96,8 +96,8 @@ private:
     void PreRenderBusesNamesOnMap();
     void PrerenderStops();
     void PrerenderStopsNames();
-
-
+      
+   
     //круговой маршрут??
     bool IsCircledRoute(std::string_view name);
     //пустой маршрут??
@@ -142,7 +142,7 @@ void Prerend<Render, Base>::RenderAll(std::ostream& out) {
 //             ФОРМИРОВАНИЕ БД                     //
 /////////////////////////////////////////////////////
 template<typename Render, typename Base>
-void Prerend<Render, Base>::LoadbaseStops() {
+void Prerend<Render,Base>::LoadbaseStops() {
     std::vector<geo::Coordinates> coord;
     for (const auto& i : base_.StopHashTable()) {
         auto buses_in_this_stop = base_.UniqueBusesOnNeededStop(i.second->name);

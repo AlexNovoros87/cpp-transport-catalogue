@@ -47,8 +47,9 @@ private:
     TransportCatalogue ConstructCatalog(json::Node& nod);
     //создает полноценный массив типа json::array
     void MakeArrayJson();
-    //////////////////////////////////////////////////////////////
     std::string MakeMapNode() const;
+    //////////////////////////////////////////////////////////////
+    
 };
 
 /////////////////////////////////////////////////////
@@ -97,21 +98,6 @@ public:
     double StopLabX() const;
     double StopLabY() const;
 
-    void DiagnosticPrintcheck() {
-
-
-        std::cout << " ScreenWidth: " << ScreenWidth() << " ScreenHeight: " << ScreenHeight()
-            << " Padding: " << Padding() << " LineWidth: " << LineWidht() << " Underlayer: " << UnderLayerColor();
-
-        std::cout << R"(
-///////////////////////////////////
-bus
-///////////////////////////////////
-
-)";
-    }
-
-
 private:
     const json::Node& root_;
     svg::Color underlayer_;
@@ -120,6 +106,4 @@ private:
     //служебные
     void CreatePalette();
     svg::Color ConvertColotToToSVG(const json::Node& node) const;
-
-
 };

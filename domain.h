@@ -31,5 +31,8 @@ struct REQUEST {
 		static bool IS_MAP(std::string_view line) {
 			return (line == "Map");
 		}
+
+
+
 };
 
