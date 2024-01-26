@@ -8,20 +8,12 @@
 #include<string>
 #include<cassert>
 #include<set>
-#include"geo.h"
 
-struct Stop {
-	std::string name;
-	Coordinates coord;
-};
 
-struct Bus {
-	std::string name;
-	std::vector<Stop*> bus_root;
-	size_t unique_stops;
-	double length;
-	double road_length;
-};
+/////////////////////
+#include"domain.h"///
+/////////////////////
+
 
 class TransportCatalogue {
 
@@ -40,10 +32,10 @@ public:
 	void AddStation(const Stop& stop);
 	
    //Добавить маршрут
-	void AddBus(std::string_view name, std::vector<std::string_view>&& sv);
+	void AddBus(std::string_view name,const std::vector<std::string_view>& sv, bool is_circle_route);
  
    //Добавить дистанцию 
-	void AddDistance(std::string_view point1, std::string_view point2, double len);
+	void AddDistance(std::string_view point1, std::string_view point2, int len);
 	 
 	////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                        //
@@ -74,11 +66,7 @@ public:
 	
 	//Возвращает таблицу Автобусов
 	const NamesToBuses& BusHashTable() const;
-	
-	
-	const auto& BS() const {
-		return &database_lengths_;
-	}
+
 	
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//                                                                                        //
@@ -90,7 +78,12 @@ public:
 	std::set<std::string_view> UniqueBusesOnNeededStop(std::string_view stop_name) const;
 
 	//Возвращает фактическую дистанцию между точками
-	double GetDistance(std::string_view point1, std::string_view point2) const;
+	int GetDistance(std::string_view point1, std::string_view point2) const;
+
+  
+
+
+
 
 private:
 	class HasherStop {
@@ -101,11 +94,10 @@ private:
 	private:
 		std::hash<const void*>hs_;
 	};
-	
-	
+		
 	std::deque<Stop> stops_deque_;
 	std::deque<Bus>  buses_deque_;
 	NamesToStops hesh_stops_;
 	NamesToBuses hesh_buses_;
-	std::unordered_map<std::pair<Stop*,Stop*>, double, HasherStop> database_lengths_;
+	std::unordered_map<std::pair<Stop*,Stop*>, int, HasherStop> database_lengths_;
 }; 

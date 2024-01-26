@@ -1,36 +1,21 @@
 ﻿#include <iostream>
 #include <string>
 #include<sstream>
-#include <sstream>
+#include <string_view>
 #include <fstream>
-#include <cmath>
-#include"input_reader.h"
+//#include"E:/include/log_duration.h"
 
-#define DEBUG 1
-#ifdef DEBUG
-#include"E:/include/log_duration.h"
-#include"E:/include/overflow.h"
-#endif
+/////////////////////////////////
+#include"json_reader.h"       /// ///
+#include"map_renderer.h"      ///
+/////////////////////////////////
 
 int main() {
-  
-#ifdef DEBUG 
-    
     using namespace std;
 
-    ostringstream oss;
-    ifstream ifs("T.txt");
-
-    while (ifs.good()) {
-        string line;
-        getline(ifs, line);
-        oss << line << endl;
-    }
-    istringstream iss(oss.str());
-    LOG_DURATION("TEST");
-    RunCatalogue(iss);
-#else
-    RunCatalogue();
-#endif
-
-}
+    ifstream ifs("T2.txt", ios::binary);
+    
+    WorkWithJson w(ifs);
+    w.PrintArray();
+    
+ }
