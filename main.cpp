@@ -13,9 +13,9 @@
 int main() {
     using namespace std;
 
-    ifstream ifs("T2.txt", ios::binary);
+    //ifstream ifs("T2.txt", ios::binary);
     
-    WorkWithJson w(ifs);
+    WorkWithJson w;
     w.PrintArray();
     
  }
