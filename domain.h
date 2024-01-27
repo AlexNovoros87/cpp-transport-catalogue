@@ -21,18 +21,15 @@ struct Bus {
 };
     
 struct REQUEST {
-        static bool IS_BUS(std::string_view line) {
+        static bool IS_MAP(std::string_view line) {
+			return (line == "Map");
+		}
+		static bool IS_BUS(std::string_view line) {
             return (line == "Bus");
         }
         static bool IS_STOP_POINT(std::string_view line) {
             return (line == "Stop");
         }
-
-		static bool IS_MAP(std::string_view line) {
-			return (line == "Map");
-		}
-
-
-
+        
 };
 
