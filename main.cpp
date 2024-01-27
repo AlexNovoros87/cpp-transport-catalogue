@@ -10,13 +10,10 @@
 
 int main() {
 
-    std::ifstream ifs("Text.txt", std::ios::binary);
     
-    Request js(ifs);
+    Request js;
 
-
-    MapRenderer mr(RenderGraphics(js.rend()), js.cat());
-    mr.RenderAll();
+    js.PrintArray();
 
 
 

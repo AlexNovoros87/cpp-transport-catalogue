@@ -13,13 +13,6 @@ public:
     Request(std::istream& ist = std::cin);
     //распечатывает запросы
     void PrintArray(std::ostream& ost = std::cout) const;
-    auto& rend() const{
-        return render_settings_;
-    }
-    
-    auto& cat() const {
-        return cat_;
-    }
 
 private:
     json::Array requests_array_{};
