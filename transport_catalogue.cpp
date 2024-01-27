@@ -1,114 +1,114 @@
  #include "transport_catalogue.h"
 
-  ////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                                        //
-  //                                     днаюбхрэ                                           //
-  //                                                                                        //
-  ////////////////////////////////////////////////////////////////////////////////////////////
+	  ////////////////////////////////////////////////////////////////////////////////////////////
+	  //                                                                                        //
+	  //                                     днаюбхрэ                                           //
+	  //                                                                                        //
+	  ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void TransportCatalogue::AddStation(const Stop& stop) {
-	stops_deque_.emplace_back(stop);
-	hesh_stops_[stops_deque_.back().name] = &stops_deque_[stops_deque_.size() - 1];
-}
-
-
-void TransportCatalogue::AddBus(std::string_view name,const std::vector<std::string_view>& sv, bool is_circle_route) {
-	std::vector<Stop*> stops;
-	
-	stops.reserve(sv.size());
-	std::unordered_set<std::string_view> unique_counter;
-	double total_lenght = 0.;
-	int total_road_length = 0;
-	
-	for (auto i : sv) {
-		assert(HasStop(i) == true);
-		stops.emplace_back(hesh_stops_.at(i));
-		unique_counter.insert(i);
+	void TransportCatalogue::AddStation(const Stop& stop) {
+		stops_deque_.emplace_back(stop);
+		hesh_stops_[stops_deque_.back().name] = &stops_deque_[stops_deque_.size() - 1];
 	}
 
-	for (int i = 0; i + 1 < stops.size(); ++i) {
-		double lng = ComputeDistance(stops[i]->coord, stops[i + 1]->coord);
-		if (database_lengths_.count({ stops[i], stops[i + 1] }) > 0) {
-			total_road_length += GetDistance(stops[i]->name, stops[i + 1]->name);
+
+	void TransportCatalogue::AddBus(std::string_view name,const std::vector<std::string_view>& sv, bool is_circle_route) {
+		std::vector<Stop*> stops;
+	
+		stops.reserve(sv.size());
+		std::unordered_set<std::string_view> unique_counter;
+		double total_lenght = 0.;
+		int total_road_length = 0;
+	
+		for (auto i : sv) {
+			assert(HasStop(i) == true);
+			stops.emplace_back(hesh_stops_.at(i));
+			unique_counter.insert(i);
+		}
+
+		for (int i = 0; i + 1 < stops.size(); ++i) {
+			double lng = ComputeDistance(stops[i]->coord, stops[i + 1]->coord);
+			if (database_lengths_.count({ stops[i], stops[i + 1] }) > 0) {
+				total_road_length += GetDistance(stops[i]->name, stops[i + 1]->name);
 			
+			}
+			else if (database_lengths_.count({ stops[i+1], stops[i] }) > 0) {
+				total_road_length += GetDistance(stops[i + 1]->name, stops[i]->name);
+			}
+			total_lenght += lng;
 		}
-		else if (database_lengths_.count({ stops[i+1], stops[i] }) > 0) {
-			total_road_length += GetDistance(stops[i + 1]->name, stops[i]->name);
+		buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght, total_road_length , is_circle_route });
+		hesh_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
+	}
+
+
+	void TransportCatalogue::AddDistance(std::string_view point1, std::string_view point2, int len) {
+		if (HasStop(point1) && HasStop(point2)) {
+			database_lengths_[{hesh_stops_.at(point1), hesh_stops_.at(point2)}] = len;
 		}
-		total_lenght += lng;
 	}
-	buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght, total_road_length , is_circle_route });
-	hesh_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
-}
 
+	////////////////////////////////////////////////////////////////////////////////////////////
+	//                                                                                        //
+	//                              опнбепйю ясыеярбнбюмхъ                                    //
+	//                                                                                        //
+	////////////////////////////////////////////////////////////////////////////////////////////
 
-void TransportCatalogue::AddDistance(std::string_view point1, std::string_view point2, int len) {
-	if (HasStop(point1) && HasStop(point2)) {
-		database_lengths_[{hesh_stops_.at(point1), hesh_stops_.at(point2)}] = len;
+	bool TransportCatalogue::HasBus(std::string_view name) const {
+		return(hesh_buses_.count(name) > 0);
 	}
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                        //
-//                              опнбепйю ясыеярбнбюмхъ                                    //
-//                                                                                        //
-////////////////////////////////////////////////////////////////////////////////////////////
+	bool TransportCatalogue::HasStop(std::string_view name) const {
+		return (hesh_stops_.count(name) > 0);
+	}
 
-bool TransportCatalogue::HasBus(std::string_view name) const {
-	return(hesh_buses_.count(name) > 0);
-}
+	////////////////////////////////////////////////////////////////////////////////////////////
+	//                                                                                        //
+	//                                    днярсо й ад                                         //
+	//                                                                                        //
+	////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TransportCatalogue::HasStop(std::string_view name) const {
-	return (hesh_stops_.count(name) > 0);
-}
+	const Bus* TransportCatalogue::GetNeededBus(std::string_view name) const {
+		assert(HasBus(name) == true);
+		return hesh_buses_.at(name);
+	}
 
-////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                        //
-//                                    днярсо й ад                                         //
-//                                                                                        //
-////////////////////////////////////////////////////////////////////////////////////////////
+	const Stop* TransportCatalogue::GetNeededStop(std::string_view name) const {
+		assert(HasStop(name) == true);
+		return hesh_stops_.at(name);
+	}
 
-const Bus* TransportCatalogue::GetNeededBus(std::string_view name) const {
-	assert(HasBus(name) == true);
-	return hesh_buses_.at(name);
-}
+	const TransportCatalogue::NamesToStops& TransportCatalogue::StopHashTable() const {
+		return hesh_stops_;
+	}
 
-const Stop* TransportCatalogue::GetNeededStop(std::string_view name) const {
-	assert(HasStop(name) == true);
-	return hesh_stops_.at(name);
-}
+	const TransportCatalogue::NamesToBuses& TransportCatalogue::BusHashTable() const {
+		return hesh_buses_;
+	}
 
-const TransportCatalogue::NamesToStops& TransportCatalogue::StopHashTable() const {
-	return hesh_stops_;
-}
+	////////////////////////////////////////////////////////////////////////////////////////////
+	//                                                                                        //
+	//                                    опнвее                                              //
+	//                                                                                        //
+	////////////////////////////////////////////////////////////////////////////////////////////
 
-const TransportCatalogue::NamesToBuses& TransportCatalogue::BusHashTable() const {
-	return hesh_buses_;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                        //
-//                                    опнвее                                              //
-//                                                                                        //
-////////////////////////////////////////////////////////////////////////////////////////////
-
-std::set<std::string_view> TransportCatalogue::UniqueBusesOnNeededStop(std::string_view stop_name) const {
-	std::set<std::string_view> storage;
-	for (auto i : BusHashTable()) {
-		for (auto j : i.second->bus_root) {
-			if (j->name == stop_name) {
-				storage.insert(i.second->name);
-				break;
+	std::set<std::string_view> TransportCatalogue::UniqueBusesOnNeededStop(std::string_view stop_name) const {
+		std::set<std::string_view> storage;
+		for (auto i : BusHashTable()) {
+			for (auto j : i.second->bus_root) {
+				if (j->name == stop_name) {
+					storage.insert(i.second->name);
+					break;
+				}
 			}
 		}
+		return storage;
 	}
-	return storage;
-}
 
-int TransportCatalogue::GetDistance(std::string_view point1, std::string_view point2) const {
-	if (database_lengths_.count({ hesh_stops_.at(point1), hesh_stops_.at(point2) }) > 0) {
-		return database_lengths_.at({ hesh_stops_.at(point1), hesh_stops_.at(point2) });
+	int TransportCatalogue::GetDistance(std::string_view point1, std::string_view point2) const {
+		if (database_lengths_.count({ hesh_stops_.at(point1), hesh_stops_.at(point2) }) > 0) {
+			return database_lengths_.at({ hesh_stops_.at(point1), hesh_stops_.at(point2) });
+		}
+		return 0;
 	}
-	return 0;
-}

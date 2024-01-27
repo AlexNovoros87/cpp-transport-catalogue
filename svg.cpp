@@ -209,44 +209,6 @@ namespace svg {
         }
         out << "</text>";
     }
-    
-    
-    
-    /*
-    void Text::RenderObject(const RenderContext& context)  const {
-        auto& out = context.out;
-        out << "<text x=\"" << start_.x << "\" y=\"" << start_.y << "\"";
-        out << " dx=\"" << offset_.x << "\" dy=\"" << offset_.y << "\"";
-        out << " font-size=\"" << font_size_ << "\"";
-        RenderAttrs(out);
-        if (!font_family_.empty()) { out << " font-family=\"" << font_family_ << "\""; }
-        if (!font_weight_.empty()) out << " font-weight=\"" << font_weight_ << "\"";
-        out << ">";
-        for (const char i : text_) {
-            switch (i) {
-            case '"':
-                out << "&quot;";
-                break;
-            case '\'':
-                out << "&apos;";
-                break;
-            case '<':
-                out << "&lt;";
-                break;
-            case '>':
-                out << "&gt;";
-                break;
-            case '&':
-                out << "&amp;";
-                break;
-            default:
-                out << i;
-                break;
-            }
-        }
-        out << "</text>";
-    }
-*/
 
     //////////////////////////////////////////////////////////////////////////////////////
     //                                                                                  //

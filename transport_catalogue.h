@@ -80,11 +80,6 @@ public:
 	//¬озвращает фактическую дистанцию между точками
 	int GetDistance(std::string_view point1, std::string_view point2) const;
 
-  
-
-
-
-
 private:
 	class HasherStop {
 	public:
