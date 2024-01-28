@@ -12,7 +12,6 @@ int main() {
 
     
     Request js;
-
     js.PrintArray();
 
 

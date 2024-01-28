@@ -9,7 +9,7 @@
 
 	void TransportCatalogue::AddStation(const Stop& stop) {
 		stops_deque_.emplace_back(stop);
-		hesh_stops_[stops_deque_.back().name] = &stops_deque_[stops_deque_.size() - 1];
+		hash_stops_[stops_deque_.back().name] = &stops_deque_[stops_deque_.size() - 1];
 	}
 
 
@@ -23,7 +23,7 @@
 	
 		for (auto i : sv) {
 			assert(HasStop(i) == true);
-			stops.emplace_back(hesh_stops_.at(i));
+			stops.emplace_back(hash_stops_.at(i));
 			unique_counter.insert(i);
 		}
 
@@ -39,13 +39,13 @@
 			total_lenght += lng;
 		}
 		buses_deque_.push_back({ std::string(name), std::move(stops), unique_counter.size(), total_lenght, total_road_length , is_circle_route });
-		hesh_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
+		hash_buses_[buses_deque_[buses_deque_.size() - 1].name] = &buses_deque_[buses_deque_.size() - 1];
 	}
 
 
 	void TransportCatalogue::AddDistance(std::string_view point1, std::string_view point2, int len) {
 		if (HasStop(point1) && HasStop(point2)) {
-			database_lengths_[{hesh_stops_.at(point1), hesh_stops_.at(point2)}] = len;
+			database_lengths_[{hash_stops_.at(point1), hash_stops_.at(point2)}] = len;
 		}
 	}
 
@@ -56,11 +56,11 @@
 	////////////////////////////////////////////////////////////////////////////////////////////
 
 	bool TransportCatalogue::HasBus(std::string_view name) const {
-		return(hesh_buses_.count(name) > 0);
+		return(hash_buses_.count(name) > 0);
 	}
 
 	bool TransportCatalogue::HasStop(std::string_view name) const {
-		return (hesh_stops_.count(name) > 0);
+		return (hash_stops_.count(name) > 0);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,20 +71,20 @@
 
 	const Bus* TransportCatalogue::GetNeededBus(std::string_view name) const {
 		assert(HasBus(name) == true);
-		return hesh_buses_.at(name);
+		return hash_buses_.at(name);
 	}
 
 	const Stop* TransportCatalogue::GetNeededStop(std::string_view name) const {
 		assert(HasStop(name) == true);
-		return hesh_stops_.at(name);
+		return hash_stops_.at(name);
 	}
 
 	const TransportCatalogue::NamesToStops& TransportCatalogue::StopHashTable() const {
-		return hesh_stops_;
+		return hash_stops_;
 	}
 
 	const TransportCatalogue::NamesToBuses& TransportCatalogue::BusHashTable() const {
-		return hesh_buses_;
+		return hash_buses_;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +107,8 @@
 	}
 
 	int TransportCatalogue::GetDistance(std::string_view point1, std::string_view point2) const {
-		if (database_lengths_.count({ hesh_stops_.at(point1), hesh_stops_.at(point2) }) > 0) {
-			return database_lengths_.at({ hesh_stops_.at(point1), hesh_stops_.at(point2) });
+		if (database_lengths_.count({ hash_stops_.at(point1), hash_stops_.at(point2) }) > 0) {
+			return database_lengths_.at({ hash_stops_.at(point1), hash_stops_.at(point2) });
 		}
 		return 0;
 	}

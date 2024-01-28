@@ -92,7 +92,7 @@ private:
 		
 	std::deque<Stop> stops_deque_;
 	std::deque<Bus>  buses_deque_;
-	NamesToStops hesh_stops_;
-	NamesToBuses hesh_buses_;
+	NamesToStops hash_stops_;
+	NamesToBuses hash_buses_;
 	std::unordered_map<std::pair<Stop*,Stop*>, int, HasherStop> database_lengths_;
 }; 
