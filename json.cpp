@@ -1,6 +1,4 @@
 #include "json.h"
-
-
 namespace json {
     using namespace std;
          ////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +98,7 @@ namespace json {
         return  std::get<Dict>(*this);
     }
 
-    const Value& Node::GetValue() const {
+    const std::variant<std::nullptr_t, bool, int, double, std::string, Array, Dict>& Node::GetValue() const {
         return *this;
     }
 
@@ -125,7 +123,7 @@ namespace json {
         return  std::get<Dict>(*this);
      }
 
-     Value& Node::GetValue(){
+     ValueObject& Node::GetValue(){
         return *this;
      }
    

@@ -27,7 +27,7 @@
 			unique_counter.insert(i);
 		}
 
-		for (int i = 0; i + 1 < stops.size(); ++i) {
+		for (size_t i = 0; i + 1 < stops.size(); ++i) {
 			double lng = ComputeDistance(stops[i]->coord, stops[i + 1]->coord);
 			if (database_lengths_.count({ stops[i], stops[i + 1] }) > 0) {
 				total_road_length += GetDistance(stops[i]->name, stops[i + 1]->name);

@@ -23,7 +23,7 @@ namespace json {
     };
     using Dict = std::map<std::string, Node>;
     using Array = std::vector<Node>;
-    using Value = std::variant<std::nullptr_t, bool, int, double, std::string, Array, Dict>;
+    using ValueObject = std::variant<std::nullptr_t, bool, int, double, std::string, Array, Dict>;
     Document Load(std::istream& input);
     void Print(const Document& doc, std::ostream& output);
     std::ostream& operator<<(std::ostream& os, const Node& nod);
@@ -38,10 +38,11 @@ namespace json {
        //                                                                                        //
        ////////////////////////////////////////////////////////////////////////////////////////////
 
-    class Node final : private Value {
+    class Node final : ValueObject {
     public:
-        using variant::variant;
         
+        using variant::variant;
+       
         ////////////////////////////////////////////////////////////////////////////////////////////
         //                          ÑÐÀÂÍÅÍÈÅ ÒÈÏÎÂ                                               //
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,8 +55,6 @@ namespace json {
         bool IsNull() const;
         bool IsArray() const;
         bool IsMap() const;
-      //  bool operator ==(const Node& n) const { return this->index() == n.index();};
-      //  bool operator !=(const Node& n) const { return!(*this == n);};
 
         bool operator ==(const Node& n) const { return this->GetValue() == n.GetValue(); };
         bool operator !=(const Node& n) const { return!(*this == n);};
@@ -71,7 +70,7 @@ namespace json {
        const std::string& AsString() const;
        const Array& AsArray() const;
        const  Dict& AsMap() const;
-       const Value& GetValue() const;
+       const ValueObject& GetValue() const;
 
       
        
@@ -79,7 +78,7 @@ namespace json {
         std::string& AsString();
         Array& AsArray() ;
         Dict& AsMap() ;
-        Value& GetValue();
+        ValueObject& GetValue();
         
     private:
   
